@@ -27,6 +27,7 @@ import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 
+import org.w3c.dom.Attr;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
@@ -96,14 +97,28 @@ public class TourGuideService {
 	}
 
 	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-		List<Attraction> nearbyAttractions = new ArrayList<>();
-		for (Attraction attraction : gpsUtil.getAttractions()) {
-			if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
-				nearbyAttractions.add(attraction);
-			}
-		}
 
-		return nearbyAttractions;
+		List<Attraction> allAttractions = new ArrayList<>(gpsUtil.getAttractions());
+        List<Attraction> result = new ArrayList<>();
+
+        for (int i = 0; i < 5; i++) {
+
+            Attraction closest = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (Attraction attraction : allAttractions) {
+                double distance = rewardsService.getDistance(attraction, visitedLocation.location);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closest = attraction;
+                }
+            }
+            result.add(closest);
+            allAttractions.remove(closest);
+        }
+
+		return result;
 	}
 
 	private void addShutDownHook() {
