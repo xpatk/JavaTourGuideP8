@@ -24,6 +24,8 @@ import org.w3c.dom.Attr;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
+import com.openclassrooms.tourguide.model.NearByAttractions;
+
 @Service
 public class TourGuideService {
 	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
@@ -100,13 +102,37 @@ public class TourGuideService {
                 .collect(Collectors.toList());
     }
 
-	private void addShutDownHook() {
+    public List<NearByAttractions> getNearByAttractionsDetails (VisitedLocation visitedLocation, User user) {
+
+        return getNearByAttractions(visitedLocation)
+                .stream()
+                .map(attraction -> {
+
+                    NearByAttractions detailedItem =
+                            new NearByAttractions();
+
+                    detailedItem.setAttractionName(attraction.attractionName);
+                    detailedItem.setAttraction(attraction);
+                    detailedItem.setVisitedLocation(visitedLocation);
+                    detailedItem.setDistance(
+                            rewardsService.getDistance(attraction,visitedLocation.location));
+                    detailedItem.setUserReward(rewardsService.getRewardPoints(attraction, user));
+
+                    return detailedItem;
+                })
+                .toList();
+
+    }
+
+
+    private void addShutDownHook() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				tracker.stopTracking();
 			}
 		});
 	}
+
 
 	/**********************************************************************************
 	 * 
