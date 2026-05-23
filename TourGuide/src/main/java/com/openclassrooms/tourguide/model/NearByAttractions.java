@@ -1,38 +1,29 @@
 package com.openclassrooms.tourguide.model;
 
 import gpsUtil.location.Attraction;
-import gpsUtil.location.VisitedLocation;
+import gpsUtil.location.Location;
 
 public class NearByAttractions {
 
-    private String attractionName;
     private Attraction attraction;
-    private VisitedLocation visitedLocation;
+    private Location userLocation;
     private double distance;
     private int userReward;
-
-    public String getAttractionName() {
-        return attractionName;
-    }
-
-    public void setAttractionName(String attractionName) {
-        this.attractionName = attractionName;
-    }
 
     public Attraction getAttraction() {
         return attraction;
     }
 
+    public Location getUserLocation() {
+        return userLocation;
+    }
+
+    public void setUserLocation(Location userLocation) {
+        this.userLocation = userLocation;
+    }
+
     public void setAttraction(Attraction attraction) {
         this.attraction = attraction;
-    }
-
-    public VisitedLocation getVisitedLocation() {
-        return visitedLocation;
-    }
-
-    public void setVisitedLocation(VisitedLocation visitedLocation) {
-        this.visitedLocation = visitedLocation;
     }
 
     public double getDistance() {

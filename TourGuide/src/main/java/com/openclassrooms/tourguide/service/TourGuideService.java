@@ -111,9 +111,8 @@ public class TourGuideService {
                     NearByAttractions detailedItem =
                             new NearByAttractions();
 
-                    detailedItem.setAttractionName(attraction.attractionName);
                     detailedItem.setAttraction(attraction);
-                    detailedItem.setVisitedLocation(visitedLocation);
+                    detailedItem.setUserLocation(visitedLocation.location);
                     detailedItem.setDistance(
                             rewardsService.getDistance(attraction,visitedLocation.location));
                     detailedItem.setUserReward(rewardsService.getRewardPoints(attraction, user));
