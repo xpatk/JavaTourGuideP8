@@ -1,6 +1,10 @@
 package com.openclassrooms.tourguide.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Service;
 
@@ -39,17 +43,56 @@ public class RewardsService {
 	public void calculateRewards(User user) {
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
 		List<Attraction> attractions = gpsUtil.getAttractions();
-		
+        List<CompletableFuture<UserReward>> futures = new ArrayList<>();
+
 		for(VisitedLocation visitedLocation : userLocations) {
 			for(Attraction attraction : attractions) {
-				if(user.getUserRewards().stream().filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
+				if(user.getUserRewards().stream().noneMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))) {
 					if(nearAttraction(visitedLocation, attraction)) {
-						user.addUserReward(new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
+						futures.add(
+                                CompletableFuture.supplyAsync(
+                                        () -> new UserReward(
+                                                visitedLocation,
+                                                attraction,
+                                                getRewardPoints(attraction, user)
+                                        )
+                                )
+                        );
 					}
 				}
 			}
 		}
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        for (CompletableFuture<UserReward> future : futures) {
+            user.addUserReward(future.join());
+        }
 	}
+
+    // new method for a list of users
+
+    public void calculateRewards(List<User> users) {
+
+        ExecutorService executorService =
+                Executors.newFixedThreadPool(500);
+
+        List<CompletableFuture<Void>> futures =
+                new ArrayList<>();
+
+        for (User user : users) {
+
+            CompletableFuture<Void> future =
+                    CompletableFuture.runAsync(
+                            () -> calculateRewards(user),
+                            executorService
+                    );
+            futures.add(future);
+        }
+        CompletableFuture.allOf(
+                futures.toArray(new CompletableFuture[0])
+        ).join();
+
+        executorService.shutdown();
+    }
 	
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
 		return getDistance(attraction, location) > attractionProximityRange ? false : true;
