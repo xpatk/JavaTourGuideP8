@@ -66,7 +66,6 @@ public class RewardsService {
     }
 
     // new method for a list of users
-
     public void calculateRewards(List<User> users) {
 
         ExecutorService executorService =
@@ -76,7 +75,6 @@ public class RewardsService {
                 new ArrayList<>();
 
         for (User user : users) {
-
             CompletableFuture<Void> future =
                     CompletableFuture.runAsync(
                             () -> calculateRewards(user),
@@ -87,7 +85,6 @@ public class RewardsService {
         CompletableFuture.allOf(
                 futures.toArray(new CompletableFuture[0])
         ).join();
-
         executorService.shutdown();
     }
 	

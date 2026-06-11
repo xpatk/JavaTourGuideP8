@@ -108,7 +108,7 @@ public class TourGuideService {
 
             CompletableFuture<Void> future =
                     CompletableFuture.runAsync(
-                            () -> getUserLocation(user),
+                            () -> trackUserLocation(user),
                             executorService);
             futures.add(future);
         }
