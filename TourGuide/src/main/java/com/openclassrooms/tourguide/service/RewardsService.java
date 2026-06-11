@@ -39,34 +39,31 @@ public class RewardsService {
 	public void setDefaultProximityBuffer() {
 		proximityBuffer = defaultProximityBuffer;
 	}
-	
-	public void calculateRewards(User user) {
-		List<VisitedLocation> userLocations = user.getVisitedLocations();
-		List<Attraction> attractions = gpsUtil.getAttractions();
-        List<CompletableFuture<UserReward>> futures = new ArrayList<>();
 
-		for(VisitedLocation visitedLocation : userLocations) {
-			for(Attraction attraction : attractions) {
-				if(user.getUserRewards().stream().noneMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))) {
-					if(nearAttraction(visitedLocation, attraction)) {
-						futures.add(
-                                CompletableFuture.supplyAsync(
-                                        () -> new UserReward(
-                                                visitedLocation,
-                                                attraction,
-                                                getRewardPoints(attraction, user)
-                                        )
+    public void calculateRewards(User user) {
+        List<VisitedLocation> userLocations = user.getVisitedLocations();
+        List<Attraction> attractions = gpsUtil.getAttractions();
+
+        for (VisitedLocation visitedLocation : userLocations) {
+            for (Attraction attraction : attractions) {
+
+                if (user.getUserRewards().stream()
+                        .noneMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))) {
+
+                    if (nearAttraction(visitedLocation, attraction)) {
+
+                        user.addUserReward(
+                                new UserReward(
+                                        visitedLocation,
+                                        attraction,
+                                        getRewardPoints(attraction, user)
                                 )
                         );
-					}
-				}
-			}
-		}
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        for (CompletableFuture<UserReward> future : futures) {
-            user.addUserReward(future.join());
+                    }
+                }
+            }
         }
-	}
+    }
 
     // new method for a list of users
 

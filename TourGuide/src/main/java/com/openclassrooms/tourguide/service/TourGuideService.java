@@ -8,6 +8,9 @@ import com.openclassrooms.tourguide.user.UserReward;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -90,6 +93,30 @@ public class TourGuideService {
 		rewardsService.calculateRewards(user);
 		return visitedLocation;
 	}
+
+    // helper method track user location simultaneously
+
+    public void trackUserLocation(List<User>users) {
+
+        ExecutorService executorService =
+                Executors.newFixedThreadPool(500);
+
+        List<CompletableFuture<Void>> futures =
+                new ArrayList<>();
+
+        for (User user : users) {
+
+            CompletableFuture<Void> future =
+                    CompletableFuture.runAsync(
+                            () -> getUserLocation(user),
+                            executorService);
+            futures.add(future);
+        }
+        CompletableFuture.allOf(
+                futures.toArray(new CompletableFuture[0])).join();
+        executorService.shutdown();
+    }
+
 
 	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
 
