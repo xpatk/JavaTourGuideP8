@@ -23,7 +23,6 @@ import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 
-import org.w3c.dom.Attr;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
@@ -118,7 +117,7 @@ public class TourGuideService {
     }
 
 
-	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
+	private List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
 
         return gpsUtil.getAttractions().stream()
                 .sorted(Comparator.comparingDouble(
